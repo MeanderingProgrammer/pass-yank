@@ -10,11 +10,10 @@ associated with passwords
 - Python >= 3.5
 - [pyperclip](https://pypi.org/project/pyperclip/) python library
 
-## Setup Extensions
+## Enable Extensions
 
 ```bash
 export PASSWORD_STORE_ENABLE_EXTENSIONS=true
-export PASSWORD_STORE_EXTENSIONS_DIR="/usr/local/lib/password-store/extensions"
 ```
 
 ## Run Install

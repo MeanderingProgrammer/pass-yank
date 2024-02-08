@@ -1,5 +1,5 @@
-lib := "/usr/local/lib"
-extensions := lib / "password-store/extensions"
+home := env_var("HOME")
+extensions := home / ".password-store/.extensions"
 
 install:
     install -v -d "{{extensions}}"
