@@ -2,7 +2,7 @@ import argparse
 import re
 import subprocess
 from dataclasses import dataclass
-from typing import Optional, TypeAlias
+from typing import Optional
 
 import pyperclip
 
@@ -13,7 +13,7 @@ class MetadataValue:
     value: str
 
 
-Metadata: TypeAlias = dict[str, MetadataValue]
+Metadata = dict[str, MetadataValue]
 
 
 def main(show: bool, name: str, patterns: list[str]) -> None:
