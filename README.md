@@ -5,6 +5,11 @@ associated with passwords
 
 # Installation
 
+## Requirements
+
+- Python >= 3.5
+- [pyperclip](https://pypi.org/project/pyperclip/) python library
+
 ## Setup Extensions
 
 ```bash
