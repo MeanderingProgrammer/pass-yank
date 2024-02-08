@@ -21,7 +21,7 @@ sudo just install
 # Usage
 
 ```bash
-pass yank main/discord email
+pass yank email/yahoo email
 ```
 
 # Related Projects
