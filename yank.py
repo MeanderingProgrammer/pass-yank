@@ -1,46 +1,65 @@
 import argparse
+import re
 import subprocess
-from typing import Optional
+from dataclasses import dataclass
+from typing import Optional, TypeAlias
 
 import pyperclip
 
 
-def main(name: str, fields: list[str]) -> None:
+@dataclass(frozen=True)
+class MetadataValue:
+    key: str
+    value: str
+
+
+Metadata: TypeAlias = dict[str, MetadataValue]
+
+
+def main(show: bool, name: str, patterns: list[str]) -> None:
     contents: str = password_contents(name)
     lines: list[str] = contents.splitlines()
-    metadata: dict[str, str] = parse_metadata(lines)
-    value: Optional[str] = get_first(metadata, fields)
-    if value is None:
-        print(f"Error: no input fields found in metadata {fields}")
+    metadata: Metadata = parse_metadata(lines)
+    metadata_value: Optional[MetadataValue] = get_first(metadata, patterns)
+    if metadata_value is None:
+        print(f"Error: no metadata field matches {patterns}")
         print(f"Valid fields are {list(metadata.keys())}")
         exit(1)
-    print(value)
-    pyperclip.copy(value)
+    if show:
+        print(f"{metadata_value.key} = {metadata_value.value}")
+    else:
+        print(f"Copied {name} field {metadata_value.key} to clipboard.")
+        pyperclip.copy(metadata_value.value)
 
 
 def password_contents(name: str) -> str:
-    result = subprocess.run(["pass", "show", name], stdout=subprocess.PIPE)
+    pass_command: list[str] = ["pass", "show", name]
+    result = subprocess.run(pass_command, stdout=subprocess.PIPE)
     if result.returncode != 0:
         exit(1)
     return result.stdout.decode()
 
 
-def parse_metadata(lines: list[str]) -> dict[str, str]:
-    metadata: dict[str, str] = dict()
+def parse_metadata(lines: list[str]) -> Metadata:
+    metadata: Metadata = dict()
     # First line is password itself so we ignore it
     for line in lines[1:]:
         parts: list[str] = line.split(":", 2)
         if len(parts) == 2:
-            key: str = parts[0].strip().lower().replace(" ", "_")
-            value: str = parts[1].strip()
-            metadata[key] = value
+            normalized_key: str = parts[0].strip().lower().replace(" ", "_")
+            metadata[normalized_key] = MetadataValue(
+                key=parts[0].strip(),
+                value=parts[1].strip(),
+            )
     return metadata
 
 
-def get_first(metadata: dict[str, str], fields: list[str]) -> Optional[str]:
-    for field in fields:
-        if field in metadata:
-            return metadata[field]
+def get_first(metadata: Metadata, patterns: list[str]) -> Optional[MetadataValue]:
+    for pattern in patterns:
+        for key, value in metadata.items():
+            match = re.match(pattern, key)
+            if match is not None:
+                return value
     return None
 
 
@@ -49,13 +68,19 @@ if __name__ == "__main__":
         description="Copy metadata from password files",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
+    parser.add_argument(
+        "-s",
+        "--show",
+        action="store_true",
+        help="Show value rather than copying to clipboard",
+    )
     parser.add_argument("name", type=str, help="Password file to fetch metadata from")
     parser.add_argument(
-        "fields",
+        "patterns",
         type=str,
         nargs="*",
-        default=["email", "user_id", "id", "user"],
-        help="Fields to fetch from metadata, first found is used",
+        default=["^user.*$", "^email.*$"],
+        help="Regex patterns to fetch from metadata, first matching is used",
     )
     args = parser.parse_args()
-    main(args.name, args.fields)
+    main(args.show, args.name, args.patterns)

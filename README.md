@@ -19,7 +19,7 @@ export PASSWORD_STORE_ENABLE_EXTENSIONS=true
 ## Run Install
 
 ```bash
-sudo just install
+just install
 ```
 
 # Usage
