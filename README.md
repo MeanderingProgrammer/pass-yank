@@ -1,6 +1,28 @@
 # pass-yank
 
-A pass extension that lets you copy metadata associated with passwords
+A [pass](https://www.passwordstore.org/) extension that lets you copy metadata
+associated with passwords
+
+# Installation
+
+## Setup Extensions
+
+```bash
+export PASSWORD_STORE_ENABLE_EXTENSIONS=true
+export PASSWORD_STORE_EXTENSIONS_DIR="/usr/local/lib/password-store/extensions"
+```
+
+## Run Install
+
+```bash
+sudo just install
+```
+
+# Usage
+
+```bash
+pass yank main/discord email
+```
 
 # Related Projects
 
