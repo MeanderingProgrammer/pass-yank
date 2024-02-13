@@ -11,6 +11,12 @@ with passwords.
 - `Python` >= 3.8: `@cached_property` feature
 - [pyperclip](https://pypi.org/project/pyperclip/): copying to clipboard
 
+### Build Requirements
+
+- Everything in `Requirements` section
+- [just](https://github.com/casey/just): to run recipes (similar to `make`)
+- [pytest](https://pypi.org/project/pytest/) >= 8.0.0: for unit testing
+
 ## Enable Extensions
 
 ```bash
