@@ -1,35 +1,58 @@
 import argparse
 import re
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from functools import cached_property
 from typing import Optional
 
 import pyperclip
 
 
 @dataclass(frozen=True)
-class MetadataValue:
+class MetadataItem:
     key: str
     value: str
 
+    @cached_property
+    def field(self) -> str:
+        return self.key.lower().replace(" ", "_")
 
-Metadata = dict[str, MetadataValue]
+
+@dataclass(frozen=True)
+class Metadata:
+    items: list[MetadataItem] = field(default_factory=list)
+
+    @property
+    def fields(self) -> list[str]:
+        return [item.field for item in self.items]
+
+    def add(self, item: MetadataItem) -> None:
+        if item.field not in self.fields:
+            self.items.append(item)
+
+    def get_first(self, patterns: list[str]) -> Optional[MetadataItem]:
+        for pattern in patterns:
+            for item in self.items:
+                match = re.match(pattern, item.field)
+                if match is not None:
+                    return item
+        return None
 
 
 def main(show: bool, name: str, patterns: list[str]) -> None:
     contents: str = password_contents(name)
     lines: list[str] = contents.splitlines()
-    metadata: Metadata = parse_metadata(lines)
-    metadata_value: Optional[MetadataValue] = get_first(metadata, patterns)
-    if metadata_value is None:
+    metadata: Metadata = parse_metadata(*lines)
+    item: Optional[MetadataItem] = metadata.get_first(patterns)
+    if item is None:
         print(f"Error: no metadata field matches {patterns}")
-        print(f"Valid fields are {list(metadata.keys())}")
+        print(f"Valid fields are {metadata.fields}")
         exit(1)
     if show:
-        print(f"{metadata_value.key} = {metadata_value.value}")
+        print(f"{item.key} = {item.value}")
     else:
-        print(f"Copied {name} field {metadata_value.key} to clipboard.")
-        pyperclip.copy(metadata_value.value)
+        print(f"Copied {name} field {item.key} to clipboard.")
+        pyperclip.copy(item.value)
 
 
 def password_contents(name: str) -> str:
@@ -40,27 +63,18 @@ def password_contents(name: str) -> str:
     return result.stdout.decode()
 
 
-def parse_metadata(lines: list[str]) -> Metadata:
-    metadata: Metadata = dict()
+def parse_metadata(*lines: str) -> Metadata:
+    metadata: Metadata = Metadata()
     # First line is password itself so we ignore it
     for line in lines[1:]:
-        parts: list[str] = line.split(":", 2)
+        parts: list[str] = line.split(":", 1)
         if len(parts) == 2:
-            normalized_key: str = parts[0].strip().lower().replace(" ", "_")
-            metadata[normalized_key] = MetadataValue(
+            item = MetadataItem(
                 key=parts[0].strip(),
                 value=parts[1].strip(),
             )
+            metadata.add(item)
     return metadata
-
-
-def get_first(metadata: Metadata, patterns: list[str]) -> Optional[MetadataValue]:
-    for pattern in patterns:
-        for key, value in metadata.items():
-            match = re.match(pattern, key)
-            if match is not None:
-                return value
-    return None
 
 
 if __name__ == "__main__":
