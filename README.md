@@ -7,8 +7,9 @@ with passwords.
 
 ## Requirements
 
-- Python >= 3.8
-- [pyperclip](https://pypi.org/project/pyperclip/) python library
+- `pass` >= 1.7.0: extension support
+- `Python` >= 3.8: `@cached_property` feature
+- [pyperclip](https://pypi.org/project/pyperclip/): copying to clipboard
 
 ## Enable Extensions
 
