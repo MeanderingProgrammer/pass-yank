@@ -83,3 +83,8 @@ In its current state there is no way to get the second `url` field.
   the same thing with some implementation detail differences
 - [pass-cl](https://github.com/elcorto/pass-cl): Similar but focusses on copying multiple
   values to different X selections
+
+# Todo
+
+- Add completions similar to [update](https://github.com/roddhjav/pass-update/tree/master)
+  though copying their approach does not work for me.
