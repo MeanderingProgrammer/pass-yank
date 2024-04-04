@@ -43,10 +43,11 @@ pass yank --show? <name> <pattern>*
 
 # Format
 
-The term metadata means all the lines in a `pass` file that are not the password itself.
+The term metadata means all the lines in a `pass` file that are not the
+password itself.
 
-Each line is a potential metadata entry, in order to be picked up by the extension it must
-have a `:` separator.
+Each line is a potential metadata entry, in order to be picked up by the
+extension it must nhave a `:` separator.
 
 Keys are normalized before checking if the regex matches, normalization involves stripping
 any spaces around the key, converting to lowercase, and replacing spaces with `_`.
