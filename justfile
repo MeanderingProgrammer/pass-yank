@@ -1,6 +1,6 @@
 prog := "yank"
-home := env_var("HOME")
-extensions := home / ".password-store/.extensions"
+pass_root := env("PASSWORD_STORE_DIR", env("HOME") / ".password-store")
+extensions := pass_root / ".extensions"
 
 install:
     install -v -d "{{extensions}}"
